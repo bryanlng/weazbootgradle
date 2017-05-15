@@ -1,9 +1,11 @@
-import {by, element} from 'protractor';
+import {browser, by, element, protractor} from 'protractor';
 
 export class LoginPage {
 
   static getTitleText() {
-    return element(by.css('h1')).getText();
+    let elm = element(by.css('h1'));
+    browser.wait(protractor.ExpectedConditions.presenceOf(elm), 10000);
+    return elm;
   }
 
   static getUsernameField() {

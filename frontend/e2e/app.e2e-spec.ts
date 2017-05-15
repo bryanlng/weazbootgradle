@@ -27,7 +27,7 @@ describe('Weazbootgradle App', () => {
     });
 
     it('takes you to a login form', () => {
-      expect<any>(LoginPage.getTitleText()).toEqual('Weazbootgradle Authentication Server');
+      expect<any>(LoginPage.getTitleText().getText()).toEqual('Weazbootgradle Authentication Server');
       expect(LoginPage.getUsernameField().isPresent()).toBeTruthy();
       expect(LoginPage.getPasswordField().isPresent()).toBeTruthy();
     });
