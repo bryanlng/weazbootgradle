@@ -51,19 +51,15 @@ export class WeazbootgradlePage {
   }
 
   private static toggleCollapsedNavbarIfWindowIsSmall() {
-    browser.driver.manage().window().getSize()
-      .then(function (size) {
-          if (size.width < 992) {
-            let elm = element(by.css('button.navbar-toggler'));
-            browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 5000);
-            elm.getAttribute('aria-expanded')
-              .then(function (expanded) {
-                if (expanded === 'false') {
-                  elm.click();
-                }
-              });
+    let elm = element(by.css('button.navbar-toggler'));
+    if (elm.isPresent()) {
+      browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 5000);
+      elm.getAttribute('aria-expanded')
+        .then(function (expanded) {
+          if (expanded === 'false') {
+            elm.click();
           }
-        }
-      );
+        });
+    }
   }
 }
