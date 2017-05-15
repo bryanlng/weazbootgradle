@@ -17,7 +17,7 @@ export class WeazbootgradlePage {
     this.toggleCollapsedNavbarIfWindowIsSmall();
 
     let elm = element(by.cssContainingText('.nav-link', 'Login'));
-    browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 10000);
+    browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 20000);
     return elm;
   }
 
@@ -25,7 +25,7 @@ export class WeazbootgradlePage {
     this.toggleCollapsedNavbarIfWindowIsSmall();
 
     let elm = element(by.css('a#fullNameDropdown'));
-    browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 10000);
+    browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 20000);
     return elm;
   }
 
@@ -39,21 +39,21 @@ export class WeazbootgradlePage {
       });
 
     let elm = element(by.css('a#logout'));
-    browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 10000);
+    browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 20000);
     return elm;
   }
 
   static getResourceLink() {
     this.toggleCollapsedNavbarIfWindowIsSmall();
     let elm = element(by.cssContainingText('a', 'Resources'));
-    browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 10000);
+    browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 20000);
     return elm;
   }
 
   private static toggleCollapsedNavbarIfWindowIsSmall() {
     let elm = element(by.css('button.navbar-toggler'));
     if (elm.isPresent()) {
-      browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 10000);
+      browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 20000);
       elm.getAttribute('aria-expanded')
         .then(function (expanded) {
           if (expanded === 'false') {
