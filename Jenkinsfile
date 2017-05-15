@@ -13,14 +13,25 @@ node {
         if (isUnix()) {
             wrap([$class: 'Xvfb']) {
                 env
-                sh './gradlew build --console=plain --no-daemon --info --stacktrace'
+                try {
+                    sh './gradlew build --console=plain --no-daemon --info --stacktrace'
+                } catch (Exception e) {
+                    throw e
+                } finally {
+                    step([$class: 'JUnitResultArchiver', testResults: 'build/test-results/**/*.xml', allowEmptyResults: true])
+                }
             }
         } else {
-            bat 'gradlew build --console=plain --no-daemon --info --stacktrace'
+            try {
+                bat 'gradlew build --console=plain --no-daemon --info --stacktrace'
+            } catch (Exception e) {
+                throw e
+            } finally {
+                step([$class: 'JUnitResultArchiver', testResults: 'build/test-results/**/*.xml', allowEmptyResults: true])
+            }
         }
 
         stage 'Archive'
-        step([$class: 'JUnitResultArchiver', testResults: '**/build/test-results/**/*.xml', allowEmptyResults: true])
         step([$class: 'JacocoPublisher'])
         step([$class: 'ArtifactArchiver', artifacts: '**/build/libs/*.jar*', fingerprint: true])
     }

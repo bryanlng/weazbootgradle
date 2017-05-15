@@ -1,20 +1,19 @@
 dependencies {
-    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('commons-io:commons-io')
+    compile('org.apache.commons:commons-lang3')
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile('org.springframework.boot:spring-boot-starter-security')
-    compile('org.springframework.cloud:spring-cloud-starter-zuul')
+    compile('org.springframework.boot:spring-boot-starter-web')
     compile('org.springframework.cloud:spring-cloud-starter-oauth2')
+    compile('org.springframework.cloud:spring-cloud-starter-zuul')
     compile('org.springframework.security.oauth:spring-security-oauth2')
     compile('org.springframework.security:spring-security-jwt')
-    compile('org.apache.commons:commons-lang3')
-    compile('commons-io:commons-io')
-
-    runtime('org.springframework.boot:spring-boot-devtools')
     optional('org.springframework.boot:spring-boot-configuration-processor')
-
+    runtime('org.springframework.boot:spring-boot-devtools')
+    testCompile('com.google.code.findbugs:annotations')
+    testCompile('org.assertj:assertj-core')
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('org.springframework.security:spring-security-test')
-    testCompile("org.assertj:assertj-core")
 }
 
 bootRun {

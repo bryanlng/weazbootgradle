@@ -4,12 +4,13 @@ import 'rxjs/add/operator/toPromise';
 import {Observable} from 'rxjs/Observable';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {User} from '../models/user';
+import {Router} from '@angular/router';
 
 @Injectable()
 export class AuthService {
-  private dataObs$ = new ReplaySubject(1);
+  private dataObs$ = new ReplaySubject<User>(1);
 
-  constructor(private http: Http) {
+  constructor(private http: Http, private router: Router) {
   }
 
   getLoggedInUser(): Observable<User> {
@@ -17,16 +18,25 @@ export class AuthService {
       this.http.get('user').subscribe(
         data => {
           if (data.url.includes('auth/login')) {
-            this.dataObs$.error('Not happening this time...');
+            this.dataObs$.error('Auth server redirected.  This is normal for not being logged in.');
           } else {
-            this.dataObs$.next(data);
+            this.dataObs$.next(data.json());
           }
         },
         error => {
           this.dataObs$.error(error);
-          this.dataObs$ = new ReplaySubject(1);
+          this.dataObs$ = new ReplaySubject<User>(1);
         });
     }
     return this.dataObs$;
+  }
+
+  logout(): Promise<void> {
+    return this.http.post('logout', null).map(
+      () => {
+        this.dataObs$ = new ReplaySubject<User>(1);
+        this.router.navigate(['landing']);
+      }
+    ).toPromise();
   }
 }

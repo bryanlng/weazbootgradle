@@ -1,5 +1,6 @@
 package net.weaz.auth.security.remote;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.weaz.auth.data.models.AuthCustomUser;
 import net.weaz.auth.data.repositories.CustomUserRepository;
 import org.junit.Before;
@@ -9,7 +10,8 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,9 +27,8 @@ import static org.mockito.Mockito.when;
 
 public class CustomRemoteAuthenticationManagerTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     private CustomRemoteAuthenticationManager subject;
+
     @Mock
     private CustomUserRepository customUserRepository;
     @Captor
@@ -35,9 +36,14 @@ public class CustomRemoteAuthenticationManagerTest {
     private SampleRemoteUserConfigurationProperties sampleRemoteUserConfigurationProperties;
     private SimpleGrantedAuthority roleUser;
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+    @Rule
+    @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "MockitoRule usage.")
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
+
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
         sampleRemoteUserConfigurationProperties = new SampleRemoteUserConfigurationProperties();
         sampleRemoteUserConfigurationProperties.setUsername("username");
         sampleRemoteUserConfigurationProperties.setPassword("password");

@@ -4,6 +4,7 @@
 /*global jasmine */
 const {SpecReporter} = require('jasmine-spec-reporter');
 
+// noinspection JSUnusedGlobalSymbols
 exports.config = {
   allScriptsTimeout: 20000,
   specs: [
@@ -27,6 +28,9 @@ exports.config = {
     });
   },
   onPrepare() {
+    const width = 1600;
+    const height = 1200;
+    browser.driver.manage().window().setSize(width, height);
     jasmine.getEnv().addReporter(new SpecReporter({spec: {displayStacktrace: true}}));
   }
 };

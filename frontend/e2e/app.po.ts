@@ -1,11 +1,69 @@
-import {browser, by, element} from 'protractor';
+import {browser, by, element, protractor} from 'protractor';
 
 export class WeazbootgradlePage {
-  navigateTo() {
+  static navigateTo() {
     return browser.get('/');
   }
 
-  getParagraphText() {
-    return element(by.css('h1')).getText();
+  static getHeader() {
+    return element(by.css('h1'));
+  }
+
+  static getParagraphText() {
+    return element(by.css('main p'));
+  }
+
+  static getLoginLink() {
+    this.toggleCollapsedNavbarIfWindowIsSmall();
+
+    let elm = element(by.cssContainingText('.nav-link', 'Login'));
+    browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 5000);
+    return elm;
+  }
+
+  static getLoggedInUserFullNameDropdown() {
+    this.toggleCollapsedNavbarIfWindowIsSmall();
+
+    let elm = element(by.css('a#fullNameDropdown'));
+    browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 5000);
+    return elm;
+  }
+
+  static getLogoutLink() {
+    let loggedInUserFullName = this.getLoggedInUserFullNameDropdown();
+    loggedInUserFullName.getAttribute('aria-expanded')
+      .then(function (expanded) {
+        if (expanded === 'false') {
+          loggedInUserFullName.click();
+        }
+      });
+
+    let elm = element(by.css('a#logout'));
+    browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 10000);
+    return elm;
+  }
+
+  static getResourceLink() {
+    this.toggleCollapsedNavbarIfWindowIsSmall();
+    let elm = element(by.cssContainingText('a', 'Resources'));
+    browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 5000);
+    return elm;
+  }
+
+  private static toggleCollapsedNavbarIfWindowIsSmall() {
+    browser.driver.manage().window().getSize()
+      .then(function (size) {
+          if (size.width < 992) {
+            let elm = element(by.css('button.navbar-toggler'));
+            browser.wait(protractor.ExpectedConditions.elementToBeClickable(elm), 5000);
+            elm.getAttribute('aria-expanded')
+              .then(function (expanded) {
+                if (expanded === 'false') {
+                  elm.click();
+                }
+              });
+          }
+        }
+      );
   }
 }

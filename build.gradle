@@ -3,28 +3,25 @@ group = 'net.weaz'
 
 buildscript {
     ext {
-        gradleVersion = '3.4'
-
-        springBootVersion = '1.5.2.RELEASE'
-        springCloudVersion = 'Camden.SR5'
-
-        springSecurityJwtVersion = '1.0.7.RELEASE'
-        springSecurityTestVersion = '4.2.2.RELEASE'
-        springSecurityOauth2Version = '2.1.0.RELEASE'
-
-        nodeVersion = '7.7.1'
-        npmVersion = '4.3.0'
-        assertjVersion = '3.6.2'
-        logbackVersion = '1.1.7'
+        assertjVersion = '3.7.0'
         commonsIoVersion = '2.5'
         commonsLangVersion = '3.5'
-        httpclientVersion = '4.5.3'
-
-        springBootDependencyManagementPluginVersion = '1.0.0.RELEASE'
-        propdepsPluginVersion = '0.0.7'
-        nodePluginVersion = '1.1.0'
-        gradleVersionsPluginVersion = '0.14.0'
         coverallsPluginVersion = '2.8.1'
+        findbugsAnnotationsVersion = '3.0.1'
+        gradleVersion = '3.5'
+        gradleVersionsPluginVersion = '0.14.0'
+        httpclientVersion = '4.5.3'
+        logbackVersion = '1.1.7'
+        nodePluginVersion = '1.1.0'
+        nodeVersion = '7.10.0'
+        npmVersion = '4.5.0'
+        propdepsPluginVersion = '0.0.7'
+        springBootDependencyManagementPluginVersion = '1.0.2.RELEASE'
+        springBootVersion = '1.5.3.RELEASE'
+        springCloudVersion = 'Dalston.RELEASE'
+        springSecurityJwtVersion = '1.0.7.RELEASE'
+        springSecurityOauth2Version = '2.1.0.RELEASE'
+        springSecurityTestVersion = '4.2.2.RELEASE'
     }
 
     repositories {
@@ -35,20 +32,20 @@ buildscript {
     }
 
     dependencies {
+        classpath("com.github.ben-manes:gradle-versions-plugin:${gradleVersionsPluginVersion}")
+        classpath("com.moowork.gradle:gradle-node-plugin:${nodePluginVersion}")
         classpath("io.spring.gradle:dependency-management-plugin:${springBootDependencyManagementPluginVersion}")
+        classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsPluginVersion}")
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("org.springframework.build.gradle:propdeps-plugin:${propdepsPluginVersion}")
-        classpath("com.moowork.gradle:gradle-node-plugin:${nodePluginVersion}")
-        classpath("com.github.ben-manes:gradle-versions-plugin:${gradleVersionsPluginVersion}")
-        classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsPluginVersion}")
     }
 }
 
-apply plugin: 'com.moowork.node'
-apply plugin: 'com.moowork.grunt'
 apply plugin: 'com.github.ben-manes.versions'
-apply plugin: 'io.spring.dependency-management'
 apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: 'com.moowork.grunt'
+apply plugin: 'com.moowork.node'
+apply plugin: 'io.spring.dependency-management'
 
 allprojects {
     apply plugin: 'jacoco'
@@ -123,13 +120,16 @@ dependencyUpdates {
 }
 
 subprojects {
-    apply plugin: 'java-library'
-    apply plugin: 'org.springframework.boot'
-    apply plugin: 'propdeps'
     apply plugin: 'checkstyle'
-    apply plugin: 'pmd'
     apply plugin: 'findbugs'
+    apply plugin: 'java-library'
     apply plugin: 'maven-publish'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'pmd'
+    apply plugin: 'propdeps'
+    apply plugin: 'propdeps-eclipse'
+    apply plugin: 'propdeps-idea'
+    apply plugin: 'propdeps-maven'
 
     dependencyManagement {
         imports {
@@ -137,15 +137,16 @@ subprojects {
         }
 
         dependencies {
-            dependency("ch.qos.logback:logback-core:${logbackVersion}")
             dependency("ch.qos.logback:logback-classic:${logbackVersion}")
-            dependency("org.assertj:assertj-core:${assertjVersion}")
+            dependency("ch.qos.logback:logback-core:${logbackVersion}")
+            dependency("com.google.code.findbugs:annotations:${findbugsAnnotationsVersion}")
             dependency("commons-io:commons-io:${commonsIoVersion}")
             dependency("org.apache.commons:commons-lang3:${commonsLangVersion}")
             dependency("org.apache.httpcomponents:httpclient:${httpclientVersion}")
+            dependency("org.assertj:assertj-core:${assertjVersion}")
+            dependency("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
             dependency("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
             dependency("org.springframework.security:spring-security-test:${springSecurityTestVersion}")
-            dependency("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
         }
     }
 
@@ -165,12 +166,15 @@ subprojects {
     }
 
     checkstyle {
+        toolVersion = '7.4'
+        ignoreFailures = false
+
         configFile = rootProject.file('config/checkstyle/checkstyle-gradle.xml')
         configProperties = ["suppressionFile": project(':').file('config/checkstyle/suppressions.xml')]
     }
 
     findbugs {
-        ignoreFailures = true
+        ignoreFailures = false
         effort = 'max'
     }
 
@@ -182,7 +186,7 @@ subprojects {
     }
 
     pmd {
-        ignoreFailures = true
+        ignoreFailures = false
         ruleSets = ['java-basic', 'java-braces', 'java-unnecessary']
     }
 
@@ -246,6 +250,12 @@ task jacocoRootReport(type: JacocoReport,
         html.enabled = true
         xml.enabled = true
     }
+
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: ['**/**Application.class'])
+        })
+    }
 }
 
 coveralls {
@@ -271,5 +281,5 @@ build.finalizedBy(tasks.check)
 tasks.coveralls.dependsOn(tasks.jacocoRootReport)
 
 task wrapper(type: Wrapper) {
-    gradleVersion = project.gradleVersion
+    setGradleVersion(project.gradleVersion)
 }

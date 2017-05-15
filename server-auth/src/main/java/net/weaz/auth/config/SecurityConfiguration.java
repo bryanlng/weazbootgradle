@@ -32,17 +32,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // @formatter:off
         http
-            .formLogin().loginPage("/login").permitAll()
-        .and()
-            .requestMatchers().antMatchers(
-                "/login",
-                "/oauth/authorize",
-                "/h2-console/**",
-                "/health",
-                "/beans"
-            )
-        .and().authorizeRequests().anyRequest().authenticated()
-        .and().csrf().ignoringAntMatchers("/h2-console/**");
+            .formLogin()
+                .loginPage("/login").permitAll()
+                .and()
+            .requestMatchers()
+                .antMatchers("/login", "/oauth/authorize")
+                .and()
+            .authorizeRequests()
+                .anyRequest().authenticated()
+                .and()
+        .csrf()
+                .ignoringAntMatchers("/h2-console/**");
         //@formatter:on
     }
 

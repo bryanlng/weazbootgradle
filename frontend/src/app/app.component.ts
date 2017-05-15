@@ -9,7 +9,6 @@ import {AuthService} from './services/auth.service';
 })
 export class AppComponent implements OnInit {
 
-  private errorMessage: any;
   user: User;
   title = 'Weazbootgradle';
 
@@ -22,7 +21,11 @@ export class AppComponent implements OnInit {
 
   getUser() {
     this.authService.getLoggedInUser().subscribe(
-      user => this.user = user,
-      error => this.errorMessage = <any>error);
+      user => this.user = user
+    );
+  }
+
+  logout() {
+    this.authService.logout().then(this.user = null);
   }
 }

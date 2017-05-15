@@ -11,8 +11,7 @@ export class CanActivateWhenLoggedInGuard implements CanActivate {
 
   canActivate() {
     return this.authService.getLoggedInUser()
-      .map(result => {
-        console.log(result);
+      .map(() => {
         return true;
       }).catch(() => {
         this.router.navigate(['landing']);

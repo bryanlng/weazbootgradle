@@ -1,5 +1,6 @@
 package net.weaz.auth.security.oauth2;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.weaz.auth.data.models.CustomClient;
 import net.weaz.auth.data.repositories.CustomClientRepository;
 import org.junit.Before;
@@ -7,7 +8,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientRegistrationException;
@@ -17,15 +19,20 @@ import static org.mockito.Mockito.when;
 
 public class CustomClientDetailsServiceTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     private CustomClientDetailsService subject;
+
     @Mock
     private CustomClientRepository customClientRepository;
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    @Rule
+    @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "MockitoRule usage.")
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
+
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
         subject = new CustomClientDetailsService(customClientRepository);
     }
 
