@@ -9,6 +9,8 @@ import java.util.Collection;
 
 public class CustomUserDetails extends AuthCustomUser implements UserDetails {
 
+    private static final long serialVersionUID = -1246266494168042991L;
+
     public CustomUserDetails(AuthCustomUser user) {
         super(user);
     }

@@ -10,6 +10,8 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 public class CustomMainUser extends User {
 
+    private static final long serialVersionUID = -4165387689928836513L;
+    
     private String favoriteCat;
 
     public CustomMainUser(String username, Collection<? extends GrantedAuthority> authorities, String favoriteCat) {

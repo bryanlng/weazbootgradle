@@ -13,6 +13,8 @@ import java.io.Serializable;
 @Entity
 public class AuthCustomUser implements Serializable {
 
+    private static final long serialVersionUID = -2162399256257608538L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

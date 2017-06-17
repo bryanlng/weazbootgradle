@@ -12,6 +12,8 @@ import java.io.Serializable;
 @Entity
 public class CustomClient implements Serializable {
 
+    private static final long serialVersionUID = -7018320759525329818L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

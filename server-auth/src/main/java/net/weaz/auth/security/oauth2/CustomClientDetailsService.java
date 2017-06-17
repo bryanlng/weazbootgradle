@@ -37,6 +37,8 @@ public class CustomClientDetailsService implements ClientDetailsService {
 
     private static class CustomClientDetails extends CustomClient implements ClientDetails {
 
+        private static final long serialVersionUID = 1600476387755497998L;
+
         public CustomClientDetails(CustomClient customClient) {
             super(customClient);
         }

@@ -3,25 +3,24 @@ group = 'net.weaz'
 
 buildscript {
     ext {
-        assertjVersion = '3.7.0'
+        assertjVersion = '3.8.0'
         commonsIoVersion = '2.5'
-        commonsLangVersion = '3.5'
+        commonsLangVersion = '3.6'
         coverallsPluginVersion = '2.8.1'
         findbugsAnnotationsVersion = '3.0.1'
-        gradleVersion = '3.5'
-        gradleVersionsPluginVersion = '0.14.0'
+        gradleVersion = '4.0'
+        gradleVersionsPluginVersion = '0.15.0'
         httpclientVersion = '4.5.3'
         logbackVersion = '1.1.7'
         nodePluginVersion = '1.1.0'
         nodeVersion = '7.10.0'
         npmVersion = '4.5.0'
         propdepsPluginVersion = '0.0.7'
-        springBootDependencyManagementPluginVersion = '1.0.2.RELEASE'
-        springBootVersion = '1.5.3.RELEASE'
-        springCloudVersion = 'Dalston.RELEASE'
-        springSecurityJwtVersion = '1.0.7.RELEASE'
-        springSecurityOauth2Version = '2.1.0.RELEASE'
-        springSecurityTestVersion = '4.2.2.RELEASE'
+        springBootDependencyManagementPluginVersion = '1.0.3.RELEASE'
+        springBootVersion = '1.5.4.RELEASE'
+        springCloudVersion = 'Dalston.SR1'
+        springPlatformVersion = 'Brussels-SR3'
+        springSecurityOauth2Version = '2.1.1.RELEASE'
     }
 
     repositories {
@@ -133,6 +132,7 @@ subprojects {
 
     dependencyManagement {
         imports {
+            mavenBom("io.spring.platform:platform-bom:${springPlatformVersion}")
             mavenBom("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
         }
 
@@ -145,8 +145,6 @@ subprojects {
             dependency("org.apache.httpcomponents:httpclient:${httpclientVersion}")
             dependency("org.assertj:assertj-core:${assertjVersion}")
             dependency("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
-            dependency("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
-            dependency("org.springframework.security:spring-security-test:${springSecurityTestVersion}")
         }
     }
 
@@ -166,11 +164,22 @@ subprojects {
     }
 
     checkstyle {
-        toolVersion = '7.4'
+        toolVersion = '7.7'
         ignoreFailures = false
 
         configFile = rootProject.file('config/checkstyle/checkstyle-gradle.xml')
         configProperties = ["suppressionFile": project(':').file('config/checkstyle/suppressions.xml')]
+    }
+
+    tasks.withType(Checkstyle).each { checkstyleTask ->
+        checkstyleTask.doLast {
+            reports.all { report ->
+                def outputFile = report.destination
+                if (outputFile.exists() && outputFile.text.contains("<error ")) {
+                    throw new GradleException("There were checkstyle warnings! For more info check $outputFile")
+                }
+            }
+        }
     }
 
     findbugs {
@@ -179,6 +188,8 @@ subprojects {
     }
 
     tasks.withType(FindBugs) {
+        ignoreFailures = false
+
         reports {
             xml.enabled = false
             html.enabled = true
@@ -223,6 +234,7 @@ subprojects {
 
     tasks.withType(JavaCompile) {
         options.incremental = true
+        options.compilerArgs = ['-Xlint:all', '-Xlint:-processing']
     }
 
     compileJava.dependsOn(processResources)
@@ -256,6 +268,63 @@ task jacocoRootReport(type: JacocoReport,
             fileTree(dir: it, exclude: ['**/**Application.class'])
         })
     }
+
+    doLast {
+        def limits = [
+                'instruction': 100,
+                'branch'     : 100,
+                'line'       : 100,
+                'complexity' : 100,
+                'method'     : 100,
+                'class'      : 100
+        ]
+
+
+        def report = file("${jacoco.reportsDir}/jacocoRootReport/jacocoRootReport.xml")
+
+        def parser = new XmlParser()
+        parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+        parser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+        def results = parser.parse(report)
+
+        def percentage = {
+            def covered = it.'@covered' as Double
+            def missed = it.'@missed' as Double
+            ((covered / (covered + missed)) * 100).round(2)
+        }
+
+        def counters = results.counter
+        def metrics = [:]
+        metrics << [
+                'instruction': percentage(counters.find { (it.'@type' == 'INSTRUCTION') }),
+                'branch'     : percentage(counters.find { (it.'@type' == 'BRANCH') }),
+                'line'       : percentage(counters.find { (it.'@type' == 'LINE') }),
+                'complexity' : percentage(counters.find { (it.'@type' == 'COMPLEXITY') }),
+                'method'     : percentage(counters.find { (it.'@type' == 'METHOD') }),
+                'class'      : percentage(counters.find { (it.'@type' == 'CLASS') })
+        ]
+
+        def failures = []
+        metrics.each {
+            def limit = limits.get(it.key)
+            if (it.value < limit) {
+                failures.add("- ${it.key} coverage rate is: ${it.value}%, minimum is ${limit}%")
+            }
+        }
+
+        if (failures) {
+            logger.quiet("------------------ Code Coverage Failed -----------------------")
+            failures.each {
+                logger.quiet(it)
+            }
+            def reportHtml = file("${jacoco.reportsDir}/test/html/index.Html")
+
+            logger.quiet("You can see the report at: " + reportHtml)
+            throw new GradleException("Code coverage failed")
+        } else {
+            logger.quiet("Passed Code Coverage Checks")
+        }
+    }
 }
 
 coveralls {
@@ -282,4 +351,5 @@ tasks.coveralls.dependsOn(tasks.jacocoRootReport)
 
 task wrapper(type: Wrapper) {
     setGradleVersion(project.gradleVersion)
+    distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
